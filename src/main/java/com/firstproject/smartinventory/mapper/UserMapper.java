@@ -3,6 +3,7 @@ package com.firstproject.smartinventory.mapper;
 import com.firstproject.smartinventory.dto.UserRequestDTO;
 import com.firstproject.smartinventory.dto.UserResponseDTO;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.others.IDGenerator;
 
 public class UserMapper {
 

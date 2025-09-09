@@ -24,11 +24,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO addProduct(ProductDTO productDTO) {
+        if(productDTO.getName() == null)
+            throw new RuntimeException("Product name cannot be null");
+
         Product product = ProductMapper.toEntity(productDTO);
 
         if(productDTO.getCategoryId() != null) {
             Categories category = categoriesRepository.findById(productDTO.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category Id is not found" + productDTO.getCategoryId()));
+                    .orElseThrow(() -> new RuntimeException("CategoriesId not found " + productDTO.getCategoryId()));
             product.setCategories(category);
         }
         Product saved = productRepository.save(product);
@@ -49,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO updateProduct(String id, ProductDTO productDTO) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProviderNotFoundException("Product is not Available"+id));
+                .orElseThrow(() -> new ProviderNotFoundException("Product is not Available "+id));
 
         if(productDTO.getName() != null)
             product.setName(productDTO.getName());
@@ -61,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
             product.setPrice(productDTO.getPrice());
         if(productDTO.getCategoryId() != null) {
             Categories category = categoriesRepository.findById(productDTO.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category Id is not found" + productDTO.getCategoryId()));
+                    .orElseThrow(() -> new RuntimeException("CategoriesId not found " + productDTO.getCategoryId()));
             product.setCategories(category);
         }
         productRepository.save(product);

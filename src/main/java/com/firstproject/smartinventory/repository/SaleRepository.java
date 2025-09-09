@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface SaleRepository extends JpaRepository<Sale,String> {
 
-    SaleResponseDTO getSalesBySaleId(String SaleId);
+    Sale getSalesBySaleId(String SaleId);
 
     @Query("SELECT s FROM Sale s WHERE s.date  BETWEEN :startDate AND :endDate")
     List<Sale> getSalesByDateRange(@Param("startDate") LocalDateTime startDate,

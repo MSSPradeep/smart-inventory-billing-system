@@ -8,6 +8,7 @@ import com.firstproject.smartinventory.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,7 +32,7 @@ public class ProductServiceImplTest {
 
     private ProductDTO dto;
     private Categories categories;
-    private Product product;
+
 
     @BeforeEach
     void setUp() {
@@ -47,29 +48,57 @@ public class ProductServiceImplTest {
         dto.setQuantity(10);
         dto.setCategoryId("CAT20250901115002006");
 
-        product = new Product();
-        product.setId("PRO20250901115652035");
-        product.setName(dto.getName());
-        product.setBrand(dto.getBrand());
-        product.setQuantity(dto.getQuantity());
-        product.setPrice(dto.getPrice());
-        product.setCategories(dto.getCategories());
-
     }
 
     @Test
     void addProduct_ShouldReturnSavedProduct() {
         //Arrange
         when(categoriesRepository.findById(categories.getId())).thenReturn(Optional.of(categories));
-        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         //Act
         ProductDTO savedProduct = productServiceImpl.addProduct(dto);
 
-        //Assert
+        //Capture the entity passed to save
+        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).save(captor.capture());
+        Product savedEntity = captor.getValue();
+
+        //Assert DTO returned
         assertNotNull(savedProduct);
         assertNotNull(dto.getName(), savedProduct.getName());
-        assertNotNull(dto.getBrand(), savedProduct.getBrand());
-        verify(productRepository, times(1)).save(any(Product.class));
+
+        //Assert saved Entity field
+        assertEquals(dto.getName(),savedEntity.getName());
+        assertEquals(dto.getBrand(),savedEntity.getBrand());
+        assertEquals(dto.getPrice(),savedEntity.getPrice());
+        assertEquals(dto.getQuantity(),savedEntity.getQuantity());
+        assertEquals(categories,savedEntity.getCategories());
+    }
+
+    @Test
+    void appProduct_whenCategoryNotFound_shouldThrowException(){
+
+        //Arrange
+        when(categoriesRepository.findById(categories.getId())).thenReturn(Optional.empty());
+
+        //Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, ()->productServiceImpl.addProduct(dto));
+        assertEquals("CategoriesId not found "+categories.getId(),exception.getMessage());
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    void addProduct_whenProductNameIsNull_shouldThrowException(){
+
+        //Arrange
+        ProductDTO dto = new ProductDTO();
+        dto.setName(null);
+
+        //Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class,  () -> productServiceImpl.addProduct(dto));
+        assertTrue(exception.getMessage().contains("Product name cannot be null"));
+        verify(productRepository,never()).save(any(Product.class));
+
     }
 }

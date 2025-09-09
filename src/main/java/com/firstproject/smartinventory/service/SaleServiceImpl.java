@@ -72,7 +72,11 @@ public class SaleServiceImpl implements SaleService{
 
     @Override
     public SaleResponseDTO getSaleById(String saleId) {
-        return saleRepository.getSalesBySaleId(saleId);
+        if (saleId == null)
+            throw new IllegalArgumentException("Entered SaleId is not Valid");
+
+        Sale sale =  saleRepository.getSalesBySaleId(saleId);
+        return SaleMapper.toSaleresponseDTO(sale);
     }
 
     @Override

@@ -31,7 +31,8 @@ public class UserServiceImpl implements UserService{
 
         User user = UserMapper.toEntity(userRequestDTO);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
-        return UserMapper.toDTO(userRepository.save(user));
+        userRepository.save(user);
+        return UserMapper.toDTO(user);
 
     }
 
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(id)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("User not found"+ id));
+                        new EntityNotFoundException("User not found "+ id));
     }
 
     @Override

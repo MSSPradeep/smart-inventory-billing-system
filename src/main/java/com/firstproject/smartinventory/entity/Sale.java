@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,7 +24,7 @@ public class Sale {
     private String customerName;
 
     @OneToMany(mappedBy = "sale",cascade = CascadeType.ALL)
-    private List<SaleItems> saleItems;
+    private List<SaleItems> saleItems = new ArrayList<>();
 
     @PrePersist
     public void prePersist(){
