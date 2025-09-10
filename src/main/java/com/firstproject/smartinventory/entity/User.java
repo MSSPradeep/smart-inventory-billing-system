@@ -27,9 +27,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @PrePersist
     public void prePersist(){
         if(id == null)
             this.id = IDGenerator.idGenerator("USER");
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 }

@@ -3,6 +3,7 @@ package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.entity.User;
 import com.firstproject.smartinventory.repository.UserRepository;
+import com.firstproject.smartinventory.security.CustomeUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,10 +25,6 @@ public class AppUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUserNameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUserName(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_"+ user.getRole().name()))
-        );
+        return new CustomeUserDetails(user);
     }
 }

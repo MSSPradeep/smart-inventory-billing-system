@@ -23,4 +23,8 @@ public class Categories {
         if(id == null)
             this.id = IDGenerator.idGenerator("CAT");
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 }

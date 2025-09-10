@@ -19,6 +19,5 @@ public class ProductControllerTest {
     @Test
     void addProduct_ShouldReturnSavedProduct() throws Exception{
 
-        ProductDTO productDTO = new ProductDTO("PRO20250909","VivoBook","ASUS",52499.0,2,)
     }
 }

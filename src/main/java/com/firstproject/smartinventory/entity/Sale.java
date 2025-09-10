@@ -31,4 +31,8 @@ public class Sale {
         if(saleId == null)
             this.saleId = IDGenerator.idGenerator("SAL");
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 }

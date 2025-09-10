@@ -38,4 +38,8 @@ public class SaleItems {
         if(id == null)
             this.id = IDGenerator.idGenerator("SALEITEM");
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 }

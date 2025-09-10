@@ -20,6 +20,9 @@ public class UserRequestDTO {
     @NotBlank(message = "password is required")
     private String password;
 
+    @NotBlank(message = "email is required")
+    private String email;
+
     private String id;
 
 

@@ -36,4 +36,7 @@ public class Product {
             this.id = IDGenerator.idGenerator("PRO");
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 }

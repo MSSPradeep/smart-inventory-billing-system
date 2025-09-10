@@ -21,24 +21,24 @@ public class DataLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        //Creating the default Admin if database is empty
-        if(userRepository.findByUserNameIgnoreCase("admin").isEmpty()){
-            User admin = new User();
-            admin.setUserName("admin");
-            admin.setPassword(passwordEncoder.encode("admin@123"));
-            admin.setRole(Role.ADMIN);
-
-            userRepository.save(admin);
-        }
-
-        //Creating the default Casher if database is empty
-        if(userRepository.findByUserNameIgnoreCase("Cashier").isEmpty()){
-            User defaul = new User();
-            defaul.setUserName("cashier");
-            defaul.setRole(Role.CASHIER);
-            defaul.setPassword(passwordEncoder.encode("cashier@123"));
-
-            userRepository.save(defaul);
-        }
+//        //Creating the default Admin if database is empty
+//        if(userRepository.findByUserNameIgnoreCase("admin").isEmpty()){
+//            User admin = new User();
+//            admin.setUserName("admin");
+//            admin.setPassword(passwordEncoder.encode("admin@123"));
+//            admin.setRole(Role.ADMIN);
+//
+//            userRepository.save(admin);
+//        }
+//
+//        //Creating the default Casher if database is empty
+//        if(userRepository.findByUserNameIgnoreCase("Cashier").isEmpty()){
+//            User defaul = new User();
+//            defaul.setUserName("cashier");
+//            defaul.setRole(Role.STAFF);
+//            defaul.setPassword(passwordEncoder.encode("cashier@123"));
+//
+//            userRepository.save(defaul);
+//        }
     }
 }

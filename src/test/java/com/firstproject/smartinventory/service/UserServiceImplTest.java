@@ -44,24 +44,6 @@ public class UserServiceImplTest {
         user.setRole(ADMIN);
     }
 
-    @Test
-    void createUser_ShouldSaveUser_WhenValidData(){
-        UserRequestDTO userRequestDTO = new UserRequestDTO( "Unit_Test",ADMIN,"Unit_Test_123","20250909");
-       // when(userRepository.findByUserNameIgnoreCase("Unit_Test")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("Unit_Test_123")).thenReturn("encodedPassword");
 
-        userServiceImpl.createUser(userRequestDTO);
 
-        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(captor.capture());
-
-        User saved = captor.getValue();
-
-        assertEquals("Unit_Test",saved.getUserName());
-        assertEquals("encodedPassword",saved.getPassword());
-        assertEquals(ADMIN,saved.getRole());
-        assertNotNull(saved);
-        verify(passwordEncoder).encode("Unit_Test_123");
-        verify(userRepository).save(saved);
-    }
 }

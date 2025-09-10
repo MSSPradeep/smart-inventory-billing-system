@@ -1,8 +1,14 @@
 package com.firstproject.smartinventory.controller;
 
+import com.firstproject.smartinventory.dto.AuthResponseDTO;
+import com.firstproject.smartinventory.dto.LoginRequestDTO;
+import com.firstproject.smartinventory.dto.RegisterRequestDTO;
+import com.firstproject.smartinventory.repository.UserRepository;
 import com.firstproject.smartinventory.security.JwtUtil;
 import com.firstproject.smartinventory.service.AppUserDetailsService;
+import com.firstproject.smartinventory.service.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -22,22 +28,19 @@ public class AuthController {
     private AppUserDetailsService appUserDetailsService;
 
     @Autowired
+    private AuthServiceImpl authServiceImpl;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public Map<String,Object> login(@RequestBody Map<String, String> request){
-        String username = request.get("userName");
-        String password = request.get("password");
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO){
+        return ResponseEntity.ok(authServiceImpl.login(loginRequestDTO));
+    }
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-        UserDetails userDetails = appUserDetailsService.loadUserByUsername(username);
-        String token = jwtUtil.generateToken(userDetails);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("accessToken", token);
-        response.put("tokenType", "Bearer");
-        return response;
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO registerRequestDTO){
+        return ResponseEntity.ok(authServiceImpl.register(registerRequestDTO));
     }
 
 }
