@@ -1,13 +1,11 @@
 package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.dto.SaleItemsResponseDTO;
-import com.firstproject.smartinventory.entity.Sale;
 import com.firstproject.smartinventory.entity.SaleItems;
+import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.mapper.SaleItemMapper;
 import com.firstproject.smartinventory.repository.SaleItemsRepository;
-import io.jsonwebtoken.lang.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,17 +17,29 @@ public class SaleItemsServiceImpl implements SaleItemsService{
     @Autowired
     private SaleItemsRepository saleItemsRepository;
 
+    @Autowired
+    private StoreContextService storeContextService;
+
+    @Autowired
+    private StoreAuthorizationService storeAuthorizationService;
+
     @Override
     public SaleItemsResponseDTO getSaleItemById(String id) {
-        SaleItems saleItem = saleItemsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sale item is not found with id "+id));
+        Store store = storeContextService.getCurrentStore();
+        storeAuthorizationService.verifyUserAccess(store);
+        SaleItems saleItem = saleItemsRepository.findByIdAndStore(id,store);
+
+        if(saleItem == null)
+               throw new RuntimeException("Sale item is not found with id "+id);
 
         return SaleItemMapper.toDTO(saleItem);
     }
 
     @Override
     public List<SaleItemsResponseDTO> findBySale_SaleId(String SaleId) {
-        return saleItemsRepository.findBySale_SaleId(SaleId)
+        Store store = storeContextService.getCurrentStore();
+        storeAuthorizationService.verifyUserAccess(store);
+        return saleItemsRepository.findBySale_SaleIdAndStore(SaleId,store)
                 .stream()
                 .map(SaleItemMapper::toDTO)
                 .collect(Collectors.toList());
@@ -37,7 +47,9 @@ public class SaleItemsServiceImpl implements SaleItemsService{
 
     @Override
     public List<SaleItemsResponseDTO> findByProduct_Id(String ProductId) {
-        return saleItemsRepository.findByProduct_Id(ProductId)
+        Store store = storeContextService.getCurrentStore();
+        storeAuthorizationService.verifyUserAccess(store);
+        return saleItemsRepository.findByProduct_IdAndStore(ProductId,store)
                 .stream()
                 .map(SaleItemMapper::toDTO)
                 .collect(Collectors.toList());
@@ -45,6 +57,9 @@ public class SaleItemsServiceImpl implements SaleItemsService{
 
     @Override
     public Integer getTotalQuantitySoldByProduct(String ProductId) {
-        return saleItemsRepository.getTotalQuantitySoldByProduct(ProductId);
+        Store store = storeContextService.getCurrentStore();
+        storeAuthorizationService.verifyUserAccess(store);
+        Integer total = saleItemsRepository.getTotalQuantitySoldByProductAndStore(ProductId,store);
+        return total != null? total: 0;
     }
 }

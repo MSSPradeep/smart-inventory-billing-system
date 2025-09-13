@@ -1,5 +1,7 @@
 package com.firstproject.smartinventory.service;
 
+import com.firstproject.smartinventory.dto.StoreRequestDTO;
+import com.firstproject.smartinventory.dto.StoreResponseDTO;
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
 
@@ -7,7 +9,7 @@ import java.util.List;
 
 public interface StoreService {
 
-    Store createStore(Store store, User currentUser);
+    StoreResponseDTO createStore(StoreRequestDTO storeRequestDTO );
 
-    List<Store> getStoresForUser(User user);
+    List<StoreResponseDTO> getStoresForUser();
 }

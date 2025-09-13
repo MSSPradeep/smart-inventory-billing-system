@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,4 +33,6 @@ public class Store {
         if(storeId == null)
             this.storeId = IDGenerator.idGenerator("STORE");
     }
+
+    private Set<User> employee = new HashSet<>();
 }

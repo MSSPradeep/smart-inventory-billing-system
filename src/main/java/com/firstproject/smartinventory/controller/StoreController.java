@@ -1,5 +1,7 @@
 package com.firstproject.smartinventory.controller;
 
+import com.firstproject.smartinventory.dto.StoreRequestDTO;
+import com.firstproject.smartinventory.dto.StoreResponseDTO;
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
 import com.firstproject.smartinventory.security.CustomeUserDetails;
@@ -11,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/stores")
@@ -23,17 +26,14 @@ public class StoreController {
     private StoreServiceImpl storeServiceImpl;
 
     @PostMapping
-    public ResponseEntity<Store> createStore(@RequestBody Store store, Authentication authentication){
-        CustomeUserDetails userDetails = (CustomeUserDetails)authentication.getPrincipal();
-        User currentUser = userDetails.getUser();
-        Store savedStore = storeServiceImpl.createStore(store,currentUser);
+    public ResponseEntity<StoreResponseDTO> createStore(@RequestBody StoreRequestDTO storeRequestDTO){
+        StoreResponseDTO savedStore = storeServiceImpl.createStore(storeRequestDTO);
         return ResponseEntity.ok(savedStore);
     }
 
     @GetMapping
-    public ResponseEntity<List<Store>> getMyStores(Authentication authentication){
-        CustomeUserDetails userDetails = (CustomeUserDetails)authentication.getPrincipal();
-        User currentUser = userDetails.getUser();
-        return ResponseEntity.ok(storeServiceImpl.getStoresForUser(currentUser));
+    public ResponseEntity<List<StoreResponseDTO>> getMyStores(){
+
+        return ResponseEntity.ok(storeServiceImpl.getStoresForUser());
     }
 }
