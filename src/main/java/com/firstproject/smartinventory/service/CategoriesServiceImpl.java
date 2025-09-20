@@ -20,12 +20,8 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Autowired
     private StoreAuthorizationService storeAuthorizationService;
 
-    private final CategoriesRepository categoriesRepository;
-
-    public CategoriesServiceImpl(CategoriesRepository categoriesRepository) {
-        this.categoriesRepository = categoriesRepository;
-    }
-
+    @Autowired
+    private  CategoriesRepository categoriesRepository;
 
     public List<Categories> getAllCategories() {
         Store store = storeContextService.getCurrentStore();

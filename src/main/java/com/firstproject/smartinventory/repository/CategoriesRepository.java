@@ -15,5 +15,5 @@ public interface CategoriesRepository extends JpaRepository<Categories,String> {
 
     Optional<Categories> findByIdAndStore(String id, Store store);
 
-    boolean existByNameAndStore(String name, Store store);
+    boolean findByNameAndStore(String name, Store store);
 }

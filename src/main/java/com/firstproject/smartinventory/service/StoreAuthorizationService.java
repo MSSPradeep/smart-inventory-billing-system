@@ -2,16 +2,15 @@ package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.security.SecurityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StoreAuthorizationService {
 
-    private final SecurityUtil securityUtil;
+    @Autowired
+    private  SecurityUtil securityUtil;
 
-    public StoreAuthorizationService(SecurityUtil securityUtil){
-        this.securityUtil = securityUtil;
-    }
 
     public void verifyUserAccess(Store store){
         if (store == null)

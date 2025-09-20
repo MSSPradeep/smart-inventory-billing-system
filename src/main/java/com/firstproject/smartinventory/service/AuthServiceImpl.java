@@ -28,6 +28,12 @@ public class AuthServiceImpl implements AuthService{
     @Autowired
     private AppUserDetailsService appUserDetailsService;
 
+    @Autowired
+    private StoreContextService storeContextService;
+
+    @Autowired
+    private StoreAuthorizationService storeAuthorizationService;
+
     @Override
     public AuthResponseDTO login(LoginRequestDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail()).orElseThrow(

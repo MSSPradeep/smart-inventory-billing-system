@@ -90,8 +90,8 @@ public class SaleServiceImpl implements SaleService {
             throw new IllegalArgumentException("Entered SaleId is not Valid");
 
         Sale sale = saleRepository.getSalesBySaleIdAndStore(saleId, store);
-        if (sale == null)
-            throw new RuntimeException("Sale not found with Id " + saleId);
+        if (sale == null || sale.getSaleId() == null)
+            throw new RuntimeException("Sale not found with ID " + saleId);
         return SaleMapper.toSaleresponseDTO(sale);
     }
 

@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductServiceImpl productServiceImpl;
-
+    @Autowired
     public ProductController(ProductServiceImpl productServiceImpl) {
         this.productServiceImpl = productServiceImpl;
     }

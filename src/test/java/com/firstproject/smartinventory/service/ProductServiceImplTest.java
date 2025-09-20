@@ -1,14 +1,14 @@
 package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.dto.ProductDTO;
-import com.firstproject.smartinventory.dto.StoreRequestDTO;
+
 import com.firstproject.smartinventory.entity.Categories;
 import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Store;
-import com.firstproject.smartinventory.mapper.ProductMapper;
+
 import com.firstproject.smartinventory.repository.CategoriesRepository;
 import com.firstproject.smartinventory.repository.ProductRepository;
-import com.firstproject.smartinventory.repository.StoreRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,11 +42,10 @@ public class ProductServiceImplTest {
     @InjectMocks
     private ProductServiceImpl productServiceImpl;
 
-    private ProductDTO dto,dto1;
+    private ProductDTO dto, dto1;
     private Categories categories;
     private Store store;
     private Product product;
-
 
 
     @BeforeEach
@@ -109,31 +107,31 @@ public class ProductServiceImplTest {
         assertNotNull(dto.getName(), savedProduct.getName());
 
         //Assert saved Entity field
-        assertEquals(dto.getName(),savedEntity.getName());
-        assertEquals(dto.getBrand(),savedEntity.getBrand());
-        assertEquals(dto.getPrice(),savedEntity.getPrice());
-        assertEquals(dto.getQuantity(),savedEntity.getQuantity());
-        assertEquals(categories,savedEntity.getCategories());
-        verify(productRepository,times(1)).save(any(Product.class));
+        assertEquals(dto.getName(), savedEntity.getName());
+        assertEquals(dto.getBrand(), savedEntity.getBrand());
+        assertEquals(dto.getPrice(), savedEntity.getPrice());
+        assertEquals(dto.getQuantity(), savedEntity.getQuantity());
+        assertEquals(categories, savedEntity.getCategories());
+        verify(productRepository, times(1)).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 
     @Test
-    void appProduct_whenCategoryNotFound_shouldThrowException(){
+    void appProduct_whenCategoryNotFound_shouldThrowException() {
 
         //Arrange
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(categoriesRepository.findByIdAndStore(categories.getId(),store)).thenReturn(Optional.empty());
+        when(categoriesRepository.findByIdAndStore(categories.getId(), store)).thenReturn(Optional.empty());
 
         //Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, ()->productServiceImpl.addProduct(dto));
-        assertEquals("CategoriesId not found "+categories.getId(),exception.getMessage());
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> productServiceImpl.addProduct(dto));
+        assertEquals("CategoriesId not found " + categories.getId(), exception.getMessage());
         verify(productRepository, never()).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 
     @Test
-    void addProduct_whenProductNameIsNull_shouldThrowException(){
+    void addProduct_whenProductNameIsNull_shouldThrowException() {
 
         //Arrange
         when(storeContextService.getCurrentStore()).thenReturn(store);
@@ -141,26 +139,26 @@ public class ProductServiceImplTest {
         dto.setName(null);
 
         //Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class,  () -> productServiceImpl.addProduct(dto));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> productServiceImpl.addProduct(dto));
         assertTrue(exception.getMessage().contains("Product name cannot be null"));
-        verify(productRepository,never()).save(any(Product.class));
+        verify(productRepository, never()).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 
     @Test
-    void addProduct_whenStoreIsNull_shouldReturnException(){
+    void addProduct_whenStoreIsNull_shouldReturnException() {
 
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> productServiceImpl.addProduct(dto));
         assertTrue(exception.getMessage().contains("Invalid Store Details"));
-        verify(productRepository,never()).save(any(Product.class));
+        verify(productRepository, never()).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(isNull());
     }
 
     //Testing the getAllProducts method
     @Test
-    void getAllProducts_ShouldReturnSavedProductsList(){
+    void getAllProducts_ShouldReturnSavedProductsList() {
         when(storeContextService.getCurrentStore()).thenReturn(store);
         when(productRepository.findByStore(store)).thenReturn(List.of(product));
 
@@ -172,16 +170,16 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    void getAllProducts_WhenInvalidStoreDetails_shouldTrowException(){
+    void getAllProducts_WhenInvalidStoreDetails_shouldTrowException() {
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->productServiceImpl.getAllProducts());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productServiceImpl.getAllProducts());
         assertTrue(exception.getMessage().contains("Invalid Store Details"));
 
     }
 
     @Test
-    void getAllProducts_emptyList(){
+    void getAllProducts_emptyList() {
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
         when(productRepository.findByStore(store)).thenReturn(Collections.emptyList());
@@ -195,7 +193,7 @@ public class ProductServiceImplTest {
 
     //Testing getProductById method
     @Test
-    void getProductById_shouldReturnSavedProduct(){
+    void getProductById_shouldReturnSavedProduct() {
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
         when(productRepository.findByIdAndStore(product.getId(), store)).thenReturn(Optional.of(product));
@@ -206,12 +204,12 @@ public class ProductServiceImplTest {
         assertEquals(product.getId(), savedProductDTO.getId());
         assertEquals(product.getName(), savedProductDTO.getName());
 
-        verify(productRepository,times(1)).findByIdAndStore(product.getId(),store);
+        verify(productRepository, times(1)).findByIdAndStore(product.getId(), store);
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 
     @Test
-    void getProductById_shouldThrowException_WhenIdIsNull(){
+    void getProductById_shouldThrowException_WhenIdIsNull() {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productServiceImpl.getProductById(null));
         assertTrue(exception.getMessage().contains("ID can't be null"));
@@ -219,140 +217,140 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    void getProductById_ShouldThrowException_whenStoreIsnull(){
+    void getProductById_ShouldThrowException_whenStoreIsnull() {
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()-> productServiceImpl.getProductById(product.getId()));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productServiceImpl.getProductById(product.getId()));
         assertTrue(exception.getMessage().equals("Invalid Store Details"));
 
     }
 
     @Test
-    void getProductById_shouldThrowException_whenIdIsInvalid(){
+    void getProductById_shouldThrowException_whenIdIsInvalid() {
         String id = "invalid";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id,store))
+        when(productRepository.findByIdAndStore(id, store))
                 .thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                ()->productServiceImpl.getProductById(id));
+                () -> productServiceImpl.getProductById(id));
         assertEquals("Product is not available with id " + id, exception.getMessage());
 
-        verify(productRepository).findByIdAndStore(id,store);
+        verify(productRepository).findByIdAndStore(id, store);
         verify(storeAuthorizationService).verifyUserAccess(store);
 
     }
 
     //Testing updateProduct method
     @Test
-    void updateProduct_shouldReturnUpdatedProduct(){
+    void updateProduct_shouldReturnUpdatedProduct() {
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(categoriesRepository.findByIdAndStore("CAT20250901115002006",store)).thenReturn(Optional.of(categories));
-        when(productRepository.findByIdAndStore("PROD001",store)).thenReturn(Optional.of(product));
+        when(categoriesRepository.findByIdAndStore("CAT20250901115002006", store)).thenReturn(Optional.of(categories));
+        when(productRepository.findByIdAndStore("PROD001", store)).thenReturn(Optional.of(product));
 
 
         ProductDTO productDTO = productServiceImpl.updateProduct("PROD001", dto1);
 
         assertEquals("PROD001", productDTO.getId());
         assertEquals(dto1.getName(), productDTO.getName());
-        assertEquals(dto1.getCategoryId(),productDTO.getCategoryId());
-        verify(productRepository,times(1)).findByIdAndStore("PROD001",store);
-        verify(productRepository,times(1)).save(product);
+        assertEquals(dto1.getCategoryId(), productDTO.getCategoryId());
+        verify(productRepository, times(1)).findByIdAndStore("PROD001", store);
+        verify(productRepository, times(1)).save(product);
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 
     @Test
-    void updateProduct_shouldThrowException_whenProductIdIsNotValid(){
+    void updateProduct_shouldThrowException_whenProductIdIsNotValid() {
         String id = "invalid";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id,store)).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                ()->productServiceImpl.updateProduct(id,dto1));
+                () -> productServiceImpl.updateProduct(id, dto1));
 
-        verify(productRepository,times(0)).save(product);
+        verify(productRepository, times(0)).save(product);
         verify(storeAuthorizationService).verifyUserAccess(store);
-        assertEquals("Product is not Available "+id, exception.getMessage());
+        assertEquals("Product is not Available " + id, exception.getMessage());
     }
 
     @Test
-    void updateProduct_shouldThrowException_whenStoreIsNull(){
+    void updateProduct_shouldThrowException_whenStoreIsNull() {
         String id = "PROD001";
         Store store1 = null;
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                ()->productServiceImpl.updateProduct(id,dto));
-        assertEquals("Store can't be null",exception.getMessage());
-        verify(productRepository,times(0)).save(product);
+                () -> productServiceImpl.updateProduct(id, dto));
+        assertEquals("Store can't be null", exception.getMessage());
+        verify(productRepository, times(0)).save(product);
     }
 
     @Test
-    void updateProduct_shouldUpdateSpecificFields_only(){
+    void updateProduct_shouldUpdateSpecificFields_only() {
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.of(product));
         when(categoriesRepository.findByIdAndStore(categories.getId(), store)).thenReturn(Optional.of(categories));
 
-        ProductDTO savedDTO = productServiceImpl.updateProduct(id,dto1);
+        ProductDTO savedDTO = productServiceImpl.updateProduct(id, dto1);
 
         assertNotEquals(dto1.getId(), savedDTO.getId());
-        assertEquals(dto1.getName(),savedDTO.getName());
+        assertEquals(dto1.getName(), savedDTO.getName());
         verify(storeAuthorizationService).verifyUserAccess(store);
-        verify(productRepository,times(1)).save(product);
-        verify(categoriesRepository,times(1)).findByIdAndStore(categories.getId(),store);
+        verify(productRepository, times(1)).save(product);
+        verify(categoriesRepository, times(1)).findByIdAndStore(categories.getId(), store);
 
     }
 
     //Testing deleteProduct method
 
     @Test
-    void deleteProductShouldDeleteProductById(){
+    void deleteProductShouldDeleteProductById() {
 
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.of(product));
 
         productServiceImpl.deleteProduct(id);
 
-        verify(productRepository,times(1)).delete(product);
+        verify(productRepository, times(1)).delete(product);
         verify(storeAuthorizationService).verifyUserAccess(store);
 
     }
 
     @Test
-    void deleteProductShouldThrowException_whenStoreIsInvalid(){
+    void deleteProductShouldThrowException_whenStoreIsInvalid() {
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                ()->productServiceImpl.deleteProduct("PROD001"));
+                () -> productServiceImpl.deleteProduct("PROD001"));
 
-        verify(productRepository,times(0)).delete(product);
+        verify(productRepository, times(0)).delete(product);
     }
 
     @Test
-    void deleteProductShouldThrowException_whenProductIsNotFound(){
+    void deleteProductShouldThrowException_whenProductIsNotFound() {
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id,store)).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows( RuntimeException.class,
-                ()-> productServiceImpl.deleteProduct(id));
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> productServiceImpl.deleteProduct(id));
 
-        assertEquals("Product is not found with id "+id,exception.getMessage());
-        verify(productRepository,times(0)).delete(product);
+        assertEquals("Product is not found with id " + id, exception.getMessage());
+        verify(productRepository, times(0)).delete(product);
 
     }
 
     @Test
-    void check_deleteProductIsCalledExactlyOnce(){
+    void check_deleteProductIsCalledExactlyOnce() {
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.of(product));
 
         productServiceImpl.deleteProduct(id);
 
-        verify(productRepository,times(1)).delete(product);
+        verify(productRepository, times(1)).delete(product);
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 }

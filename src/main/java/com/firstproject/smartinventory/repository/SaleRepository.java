@@ -16,7 +16,8 @@ public interface SaleRepository extends JpaRepository<Sale,String> {
 
     @Query("SELECT s FROM Sale s WHERE s.date  BETWEEN :startDate AND :endDate AND s.store = :store")
     List<Sale> getSalesByDateRangeAndStore(@Param("startDate") LocalDateTime startDate,
-                                               @Param("endDate")  LocalDateTime endDate, Store store);
+                                               @Param("endDate")  LocalDateTime endDate,
+                                               @Param("store") Store store);
 
 
     List<Sale> findAllSalesByStore(Store store);

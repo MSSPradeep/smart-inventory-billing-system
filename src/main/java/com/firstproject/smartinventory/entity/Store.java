@@ -1,10 +1,7 @@
 package com.firstproject.smartinventory.entity;
 
 import com.firstproject.smartinventory.others.IDGenerator;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,5 +31,6 @@ public class Store {
             this.storeId = IDGenerator.idGenerator("STORE");
     }
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<User> employee = new HashSet<>();
 }
