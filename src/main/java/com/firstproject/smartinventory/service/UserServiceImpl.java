@@ -6,7 +6,6 @@ import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
 import com.firstproject.smartinventory.mapper.UserMapper;
 import com.firstproject.smartinventory.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +41,7 @@ public class UserServiceImpl implements UserService{
 
         User user = UserMapper.toEntity(userRequestDTO);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+        user.setStore(store);
         userRepository.save(user);
         return UserMapper.toDTO(user);
 
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService{
             throw new IllegalArgumentException("Entered ID is not valid.");
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
-        return userRepository.findByUserIdAndStore(id,store)
+        return userRepository.findByIdAndStore(id,store)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() ->
                         new IllegalArgumentException("User not found with ID "+ id));
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService{
         Store store =storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
 
-        User user = userRepository.findByUserIdAndStore(id,store)
+        User user = userRepository.findByIdAndStore(id,store)
                 .orElseThrow(()-> new UsernameNotFoundException("User is not found "+id ));
 
         if(userRequestDTO.getUserName() != null)
@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService{
     public void deleteUser(String id) {
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
-        User user = userRepository.findByUserIdAndStore(id,store)
+        User user = userRepository.findByIdAndStore(id,store)
                 .orElseThrow(()-> new RuntimeException("User is not found "+id ));
         userRepository.delete(user);
     }

@@ -25,7 +25,7 @@ public class StoreAuthorizationService {
                 .stream()
                 .anyMatch(user -> user.getId().equals(currentUserId));
 
-        if(isEmployee)
+        if(!isEmployee)
             throw new RuntimeException("Not authorized to access the store");
     }
 }

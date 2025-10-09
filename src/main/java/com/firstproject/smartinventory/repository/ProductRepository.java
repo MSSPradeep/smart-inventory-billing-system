@@ -3,10 +3,11 @@ package com.firstproject.smartinventory.repository;
 import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
 
     List<Product> findByStore(Store store);
@@ -14,4 +15,6 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     Optional<Product> findByIdAndStore(String id, Store store);
 
     boolean existsByNameAndStore(String name, Store store);
+
+    boolean existsByNameAndBrandAndStore(String name, String brand, Store store);
 }

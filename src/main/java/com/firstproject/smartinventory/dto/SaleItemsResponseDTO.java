@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SaleItemsResponseDTO {
 
+    private String id;
     private String productId;
     private String productName;
     private int quantity;

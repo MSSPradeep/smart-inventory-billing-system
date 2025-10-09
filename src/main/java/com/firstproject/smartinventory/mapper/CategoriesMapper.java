@@ -2,6 +2,8 @@ package com.firstproject.smartinventory.mapper;
 
 import com.firstproject.smartinventory.dto.CategoriesDTO;
 import com.firstproject.smartinventory.entity.Categories;
+import com.firstproject.smartinventory.others.IDGenerator;
+import org.springframework.util.IdGenerator;
 
 public class CategoriesMapper {
 
@@ -9,6 +11,7 @@ public class CategoriesMapper {
     public static Categories toEntity(CategoriesDTO categoriesDTO){
         Categories categories = new Categories();
         categories.setName(categoriesDTO.getName());
+        categories.setId(IDGenerator.idGenerator("CAT"));
         return categories;
     }
 

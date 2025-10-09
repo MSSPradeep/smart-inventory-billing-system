@@ -43,7 +43,6 @@ public class SaleServiceImpl implements SaleService {
 
         List<SaleItems> saleItems = new ArrayList<>();          // Creating a list to Store the  SaleItems
         Double totalAmount = 0.0;                                // Local variable to keep track of total cost of saleItems
-
         for (SaleItemsRequestDTO itemsDTO : saleRequestDTO.getItems()) {
 
             Product product = productRepository.findByIdAndStore(itemsDTO.getProductId(), store)
@@ -90,6 +89,7 @@ public class SaleServiceImpl implements SaleService {
             throw new IllegalArgumentException("Entered SaleId is not Valid");
 
         Sale sale = saleRepository.getSalesBySaleIdAndStore(saleId, store);
+
         if (sale == null || sale.getSaleId() == null)
             throw new RuntimeException("Sale not found with ID " + saleId);
         return SaleMapper.toSaleresponseDTO(sale);

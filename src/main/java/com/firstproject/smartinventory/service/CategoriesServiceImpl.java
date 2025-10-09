@@ -23,10 +23,10 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Autowired
     private  CategoriesRepository categoriesRepository;
 
-    public List<Categories> getAllCategories() {
+    public List<CategoriesDTO> getAllCategories() {
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
-        return categoriesRepository.findByStore(store);
+        return categoriesRepository.findByStore(store).stream().map(CategoriesMapper::toDTO).toList();
     }
 
     public CategoriesDTO saveCategories(CategoriesDTO categoriesDTO) {
@@ -47,8 +47,8 @@ public class CategoriesServiceImpl implements CategoriesService {
 
         if (categoriesDTO.getName() != null)
             category.setName(categoriesDTO.getName());
-        categoriesRepository.save(category);
-        return CategoriesMapper.toDTO(category);
+        Categories saved = categoriesRepository.save(category);
+        return CategoriesMapper.toDTO(saved);
 
     }
 

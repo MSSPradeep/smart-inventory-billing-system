@@ -1,6 +1,7 @@
 package com.firstproject.smartinventory.entity;
 
 
+import com.firstproject.smartinventory.dto.CategoriesDTO;
 import com.firstproject.smartinventory.others.IDGenerator;
 import jakarta.persistence.*;
 import lombok.*;

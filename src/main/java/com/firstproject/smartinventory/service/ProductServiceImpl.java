@@ -4,6 +4,7 @@ import com.firstproject.smartinventory.dto.ProductDTO;
 import com.firstproject.smartinventory.entity.Categories;
 import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Store;
+import com.firstproject.smartinventory.mapper.CategoriesMapper;
 import com.firstproject.smartinventory.mapper.ProductMapper;
 import com.firstproject.smartinventory.repository.CategoriesRepository;
 import com.firstproject.smartinventory.repository.ProductRepository;
@@ -35,12 +36,14 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO addProduct(ProductDTO productDTO) {
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
-        if(productDTO.getName() == null)
-            throw new RuntimeException("Product name cannot be null");
-
         if(store == null)
             throw new IllegalArgumentException("Invalid Store Details");
 
+        if(productDTO.getName() == null) {
+            throw new RuntimeException("Product name cannot be null");
+        }
+        if(productRepository.existsByNameAndBrandAndStore(productDTO.getName(),productDTO.getBrand(), store))
+            throw new RuntimeException("Product is already exists in database.");
         Product product = ProductMapper.toEntity(productDTO);
         product.setStore(store);
         if(productDTO.getCategoryId() != null) {

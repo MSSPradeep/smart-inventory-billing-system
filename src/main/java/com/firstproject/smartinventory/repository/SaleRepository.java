@@ -2,14 +2,16 @@ package com.firstproject.smartinventory.repository;
 
 import com.firstproject.smartinventory.dto.SaleResponseDTO;
 import com.firstproject.smartinventory.entity.Sale;
+import com.firstproject.smartinventory.entity.SaleItems;
 import com.firstproject.smartinventory.entity.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Repository
 public interface SaleRepository extends JpaRepository<Sale,String> {
 
     Sale getSalesBySaleIdAndStore(String SaleId, Store store);
@@ -21,4 +23,6 @@ public interface SaleRepository extends JpaRepository<Sale,String> {
 
 
     List<Sale> findAllSalesByStore(Store store);
+
+
 }

@@ -32,7 +32,7 @@ public class ProductDTO {
     private int quantity;
 
 
-    private Categories categories;
+//    private CategoriesDTO categories;
 
     private String categoryId;
 }

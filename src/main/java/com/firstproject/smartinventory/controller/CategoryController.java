@@ -21,7 +21,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Categories>> getAllCategories(){
+    public ResponseEntity<List<CategoriesDTO>> getAllCategories(){
         return ResponseEntity.ok(categoriesServiceImpl.getAllCategories());
     }
     
@@ -30,13 +30,13 @@ public class CategoryController {
          CategoriesDTO saved = categoriesServiceImpl.saveCategories(categoriesDTO);
          return ResponseEntity.ok(saved);
     }
-    @DeleteMapping
-    public void deleteCategory(String id){
+    @DeleteMapping("/delete/{id}")
+    public void deleteCategory(@PathVariable String id){
         categoriesServiceImpl.deleteCategory(id);
     }
 
-    @PutMapping
-    ResponseEntity<CategoriesDTO> updateCategory(String id, CategoriesDTO categoriesDTO){
+    @PutMapping("/{id}")
+    ResponseEntity<CategoriesDTO> updateCategory(@PathVariable String id,@RequestBody CategoriesDTO categoriesDTO){
         return ResponseEntity.ok(categoriesServiceImpl.updateCategory(id,categoriesDTO));
     }
 }

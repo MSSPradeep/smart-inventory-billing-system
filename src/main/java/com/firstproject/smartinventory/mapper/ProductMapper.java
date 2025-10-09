@@ -1,10 +1,17 @@
 package com.firstproject.smartinventory.mapper;
 
-import com.firstproject.smartinventory.dto.CategoryDTO;
+import com.firstproject.smartinventory.dto.CategoriesDTO;
 import com.firstproject.smartinventory.dto.ProductDTO;
 import com.firstproject.smartinventory.entity.Product;
+import com.firstproject.smartinventory.others.IDGenerator;
+import com.firstproject.smartinventory.repository.CategoriesRepository;
+import com.firstproject.smartinventory.service.CategoriesServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ProductMapper {
+
+    @Autowired
+    private CategoriesServiceImpl categoriesService;
 
     // This method is to convert th DTO -> Entity.
     public static Product toEntity(ProductDTO dto){
@@ -13,7 +20,7 @@ public class ProductMapper {
         product.setBrand(dto.getBrand());
         product.setQuantity(dto.getQuantity());
         product.setPrice(dto.getPrice());
-
+        product.setId(IDGenerator.idGenerator("PROD"));
         return product;
     }
     // This method is to convert Entity -> DTO
@@ -25,14 +32,7 @@ public class ProductMapper {
         productDTO.setQuantity(entity.getQuantity());
         productDTO.setId(entity.getId());
 
-        if(entity.getCategories() != null){
-            // Map entity category to DTO
-            CategoryDTO categoryDTO = new CategoryDTO();
-            categoryDTO.setId(entity.getCategories().getId());
-            categoryDTO.setName(entity.getCategories().getName());
-            productDTO.setCategories(CategoryMapper.toEntity(categoryDTO));
-
-            // Also set categoryId for reference
+        if(entity.getCategories()!= null){
             productDTO.setCategoryId(entity.getCategories().getId());
         }
 

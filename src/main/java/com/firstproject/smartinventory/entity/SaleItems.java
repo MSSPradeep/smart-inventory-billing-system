@@ -16,10 +16,9 @@ import lombok.Setter;
 public class SaleItems {
 
     @Id
-
     private String id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sale_id")
     private Sale sale;
 

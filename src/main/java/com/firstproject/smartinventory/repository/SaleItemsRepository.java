@@ -16,7 +16,7 @@ public interface SaleItemsRepository extends JpaRepository<SaleItems, String>{
 
     List<SaleItems> findByProduct_IdAndStore(String productId, Store store);
 
-    @Query("SELECT SUM(s.subTotal) FROM SaleItems s WHERE s.product.id = :productId AND s.store=:store")
+    @Query("SELECT SUM(s.quantity) FROM SaleItems s WHERE s.product.id = :productId AND s.store=:store")
     Integer getTotalQuantitySoldByProductAndStore(String productId,Store store);
 
     SaleItems findByIdAndStore(String id, Store store);

@@ -3,6 +3,7 @@ package com.firstproject.smartinventory.service;
 import com.firstproject.smartinventory.dto.AuthResponseDTO;
 import com.firstproject.smartinventory.dto.LoginRequestDTO;
 import com.firstproject.smartinventory.dto.RegisterRequestDTO;
+import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
 import com.firstproject.smartinventory.others.IDGenerator;
 import com.firstproject.smartinventory.repository.UserRepository;
@@ -58,7 +59,7 @@ public class AuthServiceImpl implements AuthService{
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(OWNER);
-
+        user.setStore(null);
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(appUserDetailsService.loadUserByUsername(user.getUserName()));

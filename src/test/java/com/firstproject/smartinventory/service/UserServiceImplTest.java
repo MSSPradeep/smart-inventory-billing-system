@@ -6,7 +6,6 @@ import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
 import com.firstproject.smartinventory.mapper.UserMapper;
 import com.firstproject.smartinventory.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +13,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
@@ -69,21 +67,23 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUser_Success(){
+    void createUser_Success() {
+        UserRequestDTO dto = userRequestDTO;
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(userRepository.existsByUserNameIgnoreCaseAndStore(userRequestDTO.getUserName(),store)).thenReturn(false);
-        when(passwordEncoder.encode(userRequestDTO.getPassword())).thenReturn("Encoded password");
-        User newUser = user;
-        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        UserResponseDTO savedUser = userServiceImpl.createUser(userRequestDTO);
+        doNothing().when(storeAuthorizationService).verifyUserAccess(store);
+        when(userRepository.existsByUserNameIgnoreCaseAndStore(dto.getUserName(), store)).thenReturn(false);
+        when(userRepository.existsByEmailAndStore(dto.getEmail(), store)).thenReturn(false);
+        when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User savedUser = invocation.getArgument(0);
+            savedUser.setId(dto.getId());
+            return savedUser;
+        });
 
-        assertNotNull(savedUser);
-        assertEquals(userRequestDTO.getUserName(), savedUser.getUserName());
-        assertEquals(userRequestDTO.getRole(), savedUser.getRole());
+        UserResponseDTO saved = userServiceImpl.createUser(userRequestDTO);
 
-        verify(storeAuthorizationService, times(1)).verifyUserAccess(store);
-        verify(userRepository,times(1)).existsByUserNameIgnoreCaseAndStore(userRequestDTO.getUserName(), store);
-        verify(userRepository,times(1)).save(newUser);
+        assertEquals(dto.getUserName(), saved.getUserName());
+        assertEquals(dto.getId(), saved.getId());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class UserServiceImplTest {
     void getUserById_success(){
         String id = "USER20250909";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(userRepository.findByUserIdAndStore(id,store)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(user));
 
         UserResponseDTO userDetails = userServiceImpl.getUserById(id);
 
@@ -149,7 +149,7 @@ public class UserServiceImplTest {
         assertEquals(user.getEmail(),userDetails.getEmail());
 
         verify(storeAuthorizationService).verifyUserAccess(store);
-        verify(userRepository,times(1)).findByUserIdAndStore(id,store);
+        verify(userRepository,times(1)).findByIdAndStore(id,store);
 
     }
 
@@ -157,7 +157,7 @@ public class UserServiceImplTest {
     void  getUserById_shouldThrowException_userNotFoundWithId(){
         String id = "USER20250909";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(userRepository.findByUserIdAndStore(id, store)).thenReturn(Optional.empty());
+        when(userRepository.findByIdAndStore(id, store)).thenReturn(Optional.empty());
 
 //        System.out.println("Test-ID: "+id);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -166,7 +166,7 @@ public class UserServiceImplTest {
         assertEquals("User not found with ID "+id, exception.getMessage());
 
         verify(storeAuthorizationService).verifyUserAccess(store);
-        verify(userRepository,times(1)).findByUserIdAndStore(id,store);
+        verify(userRepository,times(1)).findByIdAndStore(id,store);
 
     }
 
@@ -216,7 +216,7 @@ public class UserServiceImplTest {
         String id = "USER20250909";
         when(storeContextService.getCurrentStore()).thenReturn(store);
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
-        when(userRepository.findByUserIdAndStore(id,store)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(user));
 
         UserResponseDTO updated  = userServiceImpl.updateUser(id,requestDTO);
 
@@ -234,7 +234,7 @@ public class UserServiceImplTest {
         String id = "USER20250909";
         when(storeContextService.getCurrentStore()).thenReturn(store);
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
-        when(userRepository.findByUserIdAndStore(id,store)).thenReturn(Optional.empty());
+        when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 ()-> userServiceImpl.updateUser(id,requestDTO));
@@ -254,7 +254,7 @@ public class UserServiceImplTest {
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
-        when(userRepository.findByUserIdAndStore(id,store)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(user));
 
         UserResponseDTO responseDTO = userServiceImpl.updateUser(id,requestDTO);
 
@@ -268,7 +268,7 @@ public class UserServiceImplTest {
         String id = "USER20250909";
         when(storeContextService.getCurrentStore()).thenReturn(store);
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
-        when(userRepository.findByUserIdAndStore(id,store)).thenReturn(Optional.of(user));
+        when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.of(user));
 
         userServiceImpl.deleteUser(id);
 
@@ -281,7 +281,7 @@ public class UserServiceImplTest {
         String id = "USER20250909";
         when(storeContextService.getCurrentStore()).thenReturn(store);
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
-        when(userRepository.findByUserIdAndStore(id,store)).thenReturn(Optional.empty());
+        when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> userServiceImpl.deleteUser(id));

@@ -20,11 +20,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-    private final ProductServiceImpl productServiceImpl;
-    @Autowired
-    public ProductController(ProductServiceImpl productServiceImpl) {
-        this.productServiceImpl = productServiceImpl;
-    }
+
+
+        @Autowired
+        private ProductServiceImpl  productServiceImpl;
+
 
     @PostMapping
     public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO) {

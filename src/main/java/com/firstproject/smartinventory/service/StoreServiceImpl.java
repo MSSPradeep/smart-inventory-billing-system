@@ -33,6 +33,9 @@ public class StoreServiceImpl implements StoreService{
         store.setStoreId(IDGenerator.idGenerator("STORE"));
         store.setOwner(currentUser);
         Store saved = storeRepository.save(store);
+
+        currentUser.setStore(saved);
+        userRepository.save(currentUser);
         return StoreMapper.toDTO(saved);
     }
 
