@@ -5,13 +5,17 @@ import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Sale;
 import com.firstproject.smartinventory.entity.SaleItems;
 import com.firstproject.smartinventory.entity.Store;
+import com.firstproject.smartinventory.exception.badRequest.InsufficientStockException;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.ProductNotFoundException;
+import com.firstproject.smartinventory.exception.notFound.SaleNotFoundException;
 import com.firstproject.smartinventory.mapper.SaleMapper;
 import com.firstproject.smartinventory.repository.ProductRepository;
 import com.firstproject.smartinventory.repository.SaleRepository;
-import org.hibernate.annotations.SecondaryRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.ProviderNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,7 +23,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SaleServiceImpl implements SaleService {
+public class
+
+SaleServiceImpl implements SaleService {
 
     @Autowired
     private SaleRepository saleRepository;
@@ -36,6 +42,8 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public SaleResponseDTO createSale(SaleRequestDTO saleRequestDTO) {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
         Sale sale = new Sale();                                 // creating a new sale
         sale.setDate(LocalDateTime.now());                       // Assigning Sale date
@@ -45,11 +53,11 @@ public class SaleServiceImpl implements SaleService {
         Double totalAmount = 0.0;                                // Local variable to keep track of total cost of saleItems
         for (SaleItemsRequestDTO itemsDTO : saleRequestDTO.getItems()) {
 
-            Product product = productRepository.findByIdAndStore(itemsDTO.getProductId(), store)
-                    .orElseThrow(() -> new RuntimeException("Product not found with ID " + itemsDTO.getProductId()));
+            Product product = productRepository.findByIdAndStore_StoreId(itemsDTO.getProductId(), store.getStoreId())
+                    .orElseThrow(() -> new ProductNotFoundException("Product not found with ID " + itemsDTO.getProductId()));
 
             if (product.getQuantity() < itemsDTO.getQuantity()) {
-                throw new RuntimeException("Not Enough stock for product " + product.getName());
+                throw new InsufficientStockException("Not Enough stock for product " + product.getName());
             }
 
             product.setQuantity(product.getQuantity() - itemsDTO.getQuantity());
@@ -74,6 +82,8 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public List<SaleResponseDTO> getAllSales() {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
         return saleRepository.findAllSalesByStore(store)
                 .stream()
@@ -86,18 +96,20 @@ public class SaleServiceImpl implements SaleService {
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
         if (saleId == null)
-            throw new IllegalArgumentException("Entered SaleId is not Valid");
+            throw new InvalidInputException("Entered SaleId is not Valid");
 
         Sale sale = saleRepository.getSalesBySaleIdAndStore(saleId, store);
 
         if (sale == null || sale.getSaleId() == null)
-            throw new RuntimeException("Sale not found with ID " + saleId);
+            throw new SaleNotFoundException("Sale not found with ID " + saleId);
         return SaleMapper.toSaleresponseDTO(sale);
     }
 
     @Override
     public List<SaleResponseDTO> getSalesByDateRange(String startDateStr, String EndDateStr) {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDate = LocalDateTime.parse(startDateStr, formatter);

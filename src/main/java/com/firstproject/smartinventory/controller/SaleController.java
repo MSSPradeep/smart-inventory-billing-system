@@ -5,34 +5,39 @@ import com.firstproject.smartinventory.dto.SaleResponseDTO;
 import com.firstproject.smartinventory.entity.Sale;
 import com.firstproject.smartinventory.service.SaleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/sale")
+@RequestMapping("/sales")
 public class SaleController {
 
     @Autowired
     private SaleServiceImpl saleServiceImpl;
 
     @PostMapping
-    public SaleResponseDTO createSale(@RequestBody SaleRequestDTO saleRequestDTO){
-        return saleServiceImpl.createSale(saleRequestDTO);
+    @PreAuthorize("hasRole('OWNER', 'ADMIN','STAFF')")
+    public ResponseEntity<SaleResponseDTO> createSale(@RequestBody SaleRequestDTO saleRequestDTO){
+        return ResponseEntity.ok(saleServiceImpl.createSale(saleRequestDTO));
     }
 
     @GetMapping
-    public List<SaleResponseDTO> getAllSales(){
-        return saleServiceImpl.getAllSales();
+    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    public ResponseEntity<List<SaleResponseDTO> >getAllSales(){
+        return ResponseEntity.ok(saleServiceImpl.getAllSales());
     }
 
-    @GetMapping("/id/{id}")
-    public SaleResponseDTO getSaleBySaleId( @PathVariable String id){
-        return saleServiceImpl.getSaleById(id);
+    @GetMapping("/id/{id}")@PreAuthorize("hasRole('OWNER', 'ADMIN','STAFF')")
+    public ResponseEntity<SaleResponseDTO> getSaleBySaleId( @PathVariable String id){
+        return ResponseEntity.ok(saleServiceImpl.getSaleById(id));
     }
 
     @GetMapping("/date")
-    public List<SaleResponseDTO> getSaleByDateRange(@RequestParam String startDate, @RequestParam String endDate){
-        return saleServiceImpl.getSalesByDateRange(startDate,endDate);
+    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    public ResponseEntity<List<SaleResponseDTO>> getSaleByDateRange(@RequestParam String startDate, @RequestParam String endDate){
+        return ResponseEntity.ok(saleServiceImpl.getSalesByDateRange(startDate,endDate));
     }
 }

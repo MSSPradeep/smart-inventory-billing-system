@@ -4,6 +4,9 @@ import com.firstproject.smartinventory.dto.UserRequestDTO;
 import com.firstproject.smartinventory.dto.UserResponseDTO;
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.exception.badRequest.DuplicateEntryException;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.UserNotFoundException;
 import com.firstproject.smartinventory.mapper.UserMapper;
 import com.firstproject.smartinventory.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +37,10 @@ public class UserServiceImpl implements UserService{
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
         if(userRepository.existsByUserNameIgnoreCaseAndStore(userRequestDTO.getUserName(),store)){
-            throw new RuntimeException("User name is already exist.");
+            throw new DuplicateEntryException("User name is already exist.");
         }
         if(userRepository.existsByEmailAndStore(userRequestDTO.getEmail(), store))
-            throw new IllegalArgumentException("Email already exists in database.");
+            throw new DuplicateEntryException("Email already exists in database.");
 
         User user = UserMapper.toEntity(userRequestDTO);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
@@ -51,13 +54,13 @@ public class UserServiceImpl implements UserService{
     public UserResponseDTO getUserById(String id) {
 
         if(id == null)
-            throw new IllegalArgumentException("Entered ID is not valid.");
+            throw new InvalidInputException("Entered ID is not valid.");
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
         return userRepository.findByIdAndStore(id,store)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("User not found with ID "+ id));
+                        new UserNotFoundException("User not found with ID "+ id));
     }
 
     @Override
@@ -73,13 +76,13 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserResponseDTO updateUser(String id, UserRequestDTO userRequestDTO) {
         if(id == null)
-            throw new IllegalArgumentException("Enter a valid userID");
+            throw new InvalidInputException("Enter a valid userID");
 
         Store store =storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
 
         User user = userRepository.findByIdAndStore(id,store)
-                .orElseThrow(()-> new UsernameNotFoundException("User is not found "+id ));
+                .orElseThrow(()-> new UserNotFoundException("User is not found "+id ));
 
         if(userRequestDTO.getUserName() != null)
             user.setUserName(userRequestDTO.getUserName());
@@ -101,7 +104,7 @@ public class UserServiceImpl implements UserService{
         Store store = storeContextService.getCurrentStore();
         storeAuthorizationService.verifyUserAccess(store);
         User user = userRepository.findByIdAndStore(id,store)
-                .orElseThrow(()-> new RuntimeException("User is not found "+id ));
+                .orElseThrow(()-> new UserNotFoundException("User is not found "+id ));
         userRepository.delete(user);
     }
 

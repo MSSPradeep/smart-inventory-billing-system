@@ -1,7 +1,6 @@
 package com.firstproject.smartinventory.repository;
 
 import com.firstproject.smartinventory.entity.Categories;
-import com.firstproject.smartinventory.entity.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,9 +10,9 @@ import java.util.Optional;
 @Repository
 public interface CategoriesRepository extends JpaRepository<Categories,String> {
 
-    List<Categories> findByStore(Store store);
+    List<Categories> findByStore_StoreId(String storeId);
 
-    Optional<Categories> findByIdAndStore(String id, Store store);
+    Optional<Categories> findByIdAndStore_StoreId(String id, String storeId);
 
-    boolean findByNameAndStore(String name, Store store);
+    boolean existsByNameAndStore_StoreId(String name, String storeId);
 }

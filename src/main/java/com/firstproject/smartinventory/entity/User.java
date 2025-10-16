@@ -34,5 +34,7 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = true)
+    @ToString.Exclude           //
+    @EqualsAndHashCode.Exclude  // these lines are used to avoid recursion and prevent stack overflow
     private Store store;
 }

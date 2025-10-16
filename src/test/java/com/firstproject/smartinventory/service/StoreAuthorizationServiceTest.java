@@ -2,6 +2,8 @@ package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.exception.auth.UnauthorizedAccessException;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
 import com.firstproject.smartinventory.security.SecurityUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +68,7 @@ public class StoreAuthorizationServiceTest {
     @Test
     void verifyUserAccess_throwsException_WhenStoreIsNull() {
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> storeAuthorizationService.verifyUserAccess(null));
 
         assertEquals("Invalid Store Details", exception.getMessage());
@@ -75,7 +77,7 @@ public class StoreAuthorizationServiceTest {
     void verifyUserAccess_when_whenEmployeeIsNotBelongsToIt(){
         when(securityUtil.getCurrentUserId()).thenReturn("USER-009");
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        UnauthorizedAccessException exception = assertThrows(UnauthorizedAccessException.class,
                 () ->  storeAuthorizationService.verifyUserAccess(store));
 
         assertEquals( "Not authorized to access the store", exception.getMessage());

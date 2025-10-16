@@ -7,6 +7,9 @@ import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Sale;
 import com.firstproject.smartinventory.entity.SaleItems;
 import com.firstproject.smartinventory.entity.Store;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.ProductNotFoundException;
+import com.firstproject.smartinventory.exception.notFound.SaleItemNotFoundException;
 import com.firstproject.smartinventory.mapper.SaleItemMapper;
 import com.firstproject.smartinventory.repository.SaleItemsRepository;
 import com.firstproject.smartinventory.repository.StoreRepository;
@@ -92,7 +95,7 @@ public class SaleItemsServiceImplTest {
     @Test
     void getSaleItemsById_throwException_whenIdIsNull(){
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
 
                 () -> saleItemsServiceImpl.getSaleItemById(null));
 
@@ -106,7 +109,7 @@ public class SaleItemsServiceImplTest {
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
         when(saleItemsRepository.findByIdAndStore(id,store)).thenReturn(null);
 
-        RuntimeException exception = assertThrows( RuntimeException.class,
+        SaleItemNotFoundException exception = assertThrows( SaleItemNotFoundException.class,
                 () -> saleItemsServiceImpl.getSaleItemById(id));
 
         assertEquals("Sale item is not found with id "+id,exception.getMessage());
@@ -138,7 +141,7 @@ public class SaleItemsServiceImplTest {
     void getSaleItemsBySaleId_throwException_WhenIdIsNull(){
 
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> saleItemsServiceImpl.getSaleItemsBySaleId(null));
 
         assertEquals("SaleItem ID can't be null.",exception.getMessage());
@@ -177,7 +180,7 @@ public class SaleItemsServiceImplTest {
     @Test
     void getSaleItemsByProductId_throwsException_whenIdIsNull(){
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> saleItemsServiceImpl.getSaleItemsByProductId(null));
 
         assertEquals("Product ID can't be null.",exception.getMessage());
@@ -222,7 +225,7 @@ public class SaleItemsServiceImplTest {
     @Test
     void getTotalQuantitySoldByProduct_throwsException_whenIdIsNull(){
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> saleItemsServiceImpl.getTotalQuantitySoldByProduct(null));
 
 

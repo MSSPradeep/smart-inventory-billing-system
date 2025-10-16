@@ -2,9 +2,7 @@ package com.firstproject.smartinventory.entity;
 
 import com.firstproject.smartinventory.others.IDGenerator;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +21,8 @@ public class Store {
     private String storeAddress;
 
     @ManyToOne
+    @ToString.Exclude                   //
+    @EqualsAndHashCode.Exclude          // these lines are used to avoid recursion and prevent stack overflow
     private User owner;
 
     @PrePersist
@@ -32,5 +32,7 @@ public class Store {
     }
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude                   //
+    @EqualsAndHashCode.Exclude          // these lines are used to avoid recursion and prevent stack overflow
     private Set<User> employee = new HashSet<>();
 }

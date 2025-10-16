@@ -6,6 +6,9 @@ import com.firstproject.smartinventory.entity.Categories;
 import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Store;
 
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.CategoriesNotFoundException;
+import com.firstproject.smartinventory.exception.notFound.ProductNotFoundException;
 import com.firstproject.smartinventory.repository.CategoriesRepository;
 import com.firstproject.smartinventory.repository.ProductRepository;
 
@@ -91,7 +94,7 @@ public class ProductServiceImplTest {
     void addProduct_ShouldReturnSavedProduct() {
         //Arrange
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(categoriesRepository.findByIdAndStore(categories.getId(), store)).thenReturn(Optional.of(categories));
+        when(categoriesRepository.findByIdAndStore_StoreId(categories.getId(), store.getStoreId())).thenReturn(Optional.of(categories));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         //Act
@@ -121,10 +124,10 @@ public class ProductServiceImplTest {
 
         //Arrange
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(categoriesRepository.findByIdAndStore(categories.getId(), store)).thenReturn(Optional.empty());
+        when(categoriesRepository.findByIdAndStore_StoreId(categories.getId(), store.getStoreId())).thenReturn(Optional.empty());
 
         //Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> productServiceImpl.addProduct(dto));
+        CategoriesNotFoundException exception = assertThrows(CategoriesNotFoundException.class, () -> productServiceImpl.addProduct(dto));
         assertEquals("CategoriesId not found " + categories.getId(), exception.getMessage());
         verify(productRepository, never()).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(store);
@@ -139,7 +142,7 @@ public class ProductServiceImplTest {
         dto.setName(null);
 
         //Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> productServiceImpl.addProduct(dto));
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> productServiceImpl.addProduct(dto));
         assertTrue(exception.getMessage().contains("Product name cannot be null"));
         verify(productRepository, never()).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(store);
@@ -150,7 +153,7 @@ public class ProductServiceImplTest {
 
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> productServiceImpl.addProduct(dto));
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> productServiceImpl.addProduct(dto));
         assertTrue(exception.getMessage().contains("Invalid Store Details"));
         verify(productRepository, never()).save(any(Product.class));
         verify(storeAuthorizationService).verifyUserAccess(isNull());
@@ -160,7 +163,7 @@ public class ProductServiceImplTest {
     @Test
     void getAllProducts_ShouldReturnSavedProductsList() {
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByStore(store)).thenReturn(List.of(product));
+        when(productRepository.findByStore_StoreId(store.getStoreId())).thenReturn(List.of(product));
 
         List<ProductDTO> products = productServiceImpl.getAllProducts();
 
@@ -173,7 +176,7 @@ public class ProductServiceImplTest {
     void getAllProducts_WhenInvalidStoreDetails_shouldTrowException() {
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productServiceImpl.getAllProducts());
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> productServiceImpl.getAllProducts());
         assertTrue(exception.getMessage().contains("Invalid Store Details"));
 
     }
@@ -182,7 +185,7 @@ public class ProductServiceImplTest {
     void getAllProducts_emptyList() {
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByStore(store)).thenReturn(Collections.emptyList());
+        when(productRepository.findByStore_StoreId(store.getStoreId())).thenReturn(Collections.emptyList());
 
         List<ProductDTO> products = productServiceImpl.getAllProducts();
 
@@ -196,7 +199,7 @@ public class ProductServiceImplTest {
     void getProductById_shouldReturnSavedProduct() {
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(product.getId(), store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId(product.getId(), store.getStoreId())).thenReturn(Optional.of(product));
 
         ProductDTO savedProductDTO = productServiceImpl.getProductById("PROD001");
 
@@ -204,14 +207,14 @@ public class ProductServiceImplTest {
         assertEquals(product.getId(), savedProductDTO.getId());
         assertEquals(product.getName(), savedProductDTO.getName());
 
-        verify(productRepository, times(1)).findByIdAndStore(product.getId(), store);
+        verify(productRepository, times(1)).findByIdAndStore_StoreId(product.getId(), store.getStoreId());
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
 
     @Test
     void getProductById_shouldThrowException_WhenIdIsNull() {
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productServiceImpl.getProductById(null));
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> productServiceImpl.getProductById(null));
         assertTrue(exception.getMessage().contains("ID can't be null"));
 
     }
@@ -220,7 +223,7 @@ public class ProductServiceImplTest {
     void getProductById_ShouldThrowException_whenStoreIsnull() {
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> productServiceImpl.getProductById(product.getId()));
+        InvalidInputException exception = assertThrows(InvalidInputException.class, () -> productServiceImpl.getProductById(product.getId()));
         assertTrue(exception.getMessage().equals("Invalid Store Details"));
 
     }
@@ -229,14 +232,14 @@ public class ProductServiceImplTest {
     void getProductById_shouldThrowException_whenIdIsInvalid() {
         String id = "invalid";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id, store))
+        when(productRepository.findByIdAndStore_StoreId(id, store.getStoreId()))
                 .thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class,
                 () -> productServiceImpl.getProductById(id));
         assertEquals("Product is not available with id " + id, exception.getMessage());
 
-        verify(productRepository).findByIdAndStore(id, store);
+        verify(productRepository).findByIdAndStore_StoreId(id, store.getStoreId());
         verify(storeAuthorizationService).verifyUserAccess(store);
 
     }
@@ -245,8 +248,8 @@ public class ProductServiceImplTest {
     @Test
     void updateProduct_shouldReturnUpdatedProduct() {
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(categoriesRepository.findByIdAndStore("CAT20250901115002006", store)).thenReturn(Optional.of(categories));
-        when(productRepository.findByIdAndStore("PROD001", store)).thenReturn(Optional.of(product));
+        when(categoriesRepository.findByIdAndStore_StoreId("CAT20250901115002006", store.getStoreId())).thenReturn(Optional.of(categories));
+        when(productRepository.findByIdAndStore_StoreId("PROD001", store.getStoreId())).thenReturn(Optional.of(product));
 
 
         ProductDTO productDTO = productServiceImpl.updateProduct("PROD001", dto1);
@@ -254,7 +257,7 @@ public class ProductServiceImplTest {
         assertEquals("PROD001", productDTO.getId());
         assertEquals(dto1.getName(), productDTO.getName());
         assertEquals(dto1.getCategoryId(), productDTO.getCategoryId());
-        verify(productRepository, times(1)).findByIdAndStore("PROD001", store);
+        verify(productRepository, times(1)).findByIdAndStore_StoreId("PROD001", store.getStoreId());
         verify(productRepository, times(1)).save(product);
         verify(storeAuthorizationService).verifyUserAccess(store);
     }
@@ -263,9 +266,9 @@ public class ProductServiceImplTest {
     void updateProduct_shouldThrowException_whenProductIdIsNotValid() {
         String id = "invalid";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndStore_StoreId(id, store.getStoreId())).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class,
                 () -> productServiceImpl.updateProduct(id, dto1));
 
         verify(productRepository, times(0)).save(product);
@@ -279,7 +282,7 @@ public class ProductServiceImplTest {
         Store store1 = null;
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> productServiceImpl.updateProduct(id, dto));
         assertEquals("Store can't be null", exception.getMessage());
         verify(productRepository, times(0)).save(product);
@@ -289,8 +292,8 @@ public class ProductServiceImplTest {
     void updateProduct_shouldUpdateSpecificFields_only() {
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.of(product));
-        when(categoriesRepository.findByIdAndStore(categories.getId(), store)).thenReturn(Optional.of(categories));
+        when(productRepository.findByIdAndStore_StoreId(id, store.getStoreId())).thenReturn(Optional.of(product));
+        when(categoriesRepository.findByIdAndStore_StoreId(categories.getId(), store.getStoreId())).thenReturn(Optional.of(categories));
 
         ProductDTO savedDTO = productServiceImpl.updateProduct(id, dto1);
 
@@ -298,7 +301,7 @@ public class ProductServiceImplTest {
         assertEquals(dto1.getName(), savedDTO.getName());
         verify(storeAuthorizationService).verifyUserAccess(store);
         verify(productRepository, times(1)).save(product);
-        verify(categoriesRepository, times(1)).findByIdAndStore(categories.getId(), store);
+        verify(categoriesRepository, times(1)).findByIdAndStore_StoreId(categories.getId(), store.getStoreId());
 
     }
 
@@ -309,7 +312,7 @@ public class ProductServiceImplTest {
 
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId(id, store.getStoreId())).thenReturn(Optional.of(product));
 
         productServiceImpl.deleteProduct(id);
 
@@ -322,7 +325,7 @@ public class ProductServiceImplTest {
     void deleteProductShouldThrowException_whenStoreIsInvalid() {
         when(storeContextService.getCurrentStore()).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> productServiceImpl.deleteProduct("PROD001"));
 
         verify(productRepository, times(0)).delete(product);
@@ -332,9 +335,9 @@ public class ProductServiceImplTest {
     void deleteProductShouldThrowException_whenProductIsNotFound() {
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.empty());
+        when(productRepository.findByIdAndStore_StoreId(id, store.getStoreId())).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class,
                 () -> productServiceImpl.deleteProduct(id));
 
         assertEquals("Product is not found with id " + id, exception.getMessage());
@@ -346,7 +349,7 @@ public class ProductServiceImplTest {
     void check_deleteProductIsCalledExactlyOnce() {
         String id = "PROD001";
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore(id, store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId(id, store.getStoreId())).thenReturn(Optional.of(product));
 
         productServiceImpl.deleteProduct(id);
 

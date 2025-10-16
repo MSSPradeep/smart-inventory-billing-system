@@ -2,6 +2,8 @@ package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.StoreNotFoundException;
 import com.firstproject.smartinventory.repository.StoreRepository;
 import com.firstproject.smartinventory.security.CustomeUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +20,13 @@ public class StoreContextService  {
         Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if(!(principle instanceof CustomeUserDetails userDetails)){
-            throw new RuntimeException("Invalid authentication details");
+            throw new InvalidInputException("Invalid authentication details");
         }
 
         User user = userDetails.getUser();
 
         return storeRepository.findByOwner(user).stream().findFirst()
-                .orElseThrow(()-> new RuntimeException("No store found for user "+user.getUserName()));
+                .orElseThrow(()-> new StoreNotFoundException("No store found for user "+user.getUserName()));
 
     }
 }

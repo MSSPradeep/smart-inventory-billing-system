@@ -11,43 +11,53 @@ import com.firstproject.smartinventory.service.StoreContextService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
+@Component
 @RestController
 @RequestMapping("/products")
 public class ProductController {
 
 
-        @Autowired
-        private ProductServiceImpl  productServiceImpl;
+    private final ProductServiceImpl  productServiceImpl;
 
+    @Autowired
+    public ProductController (ProductServiceImpl productServiceImpl){
+        this.productServiceImpl = productServiceImpl;
+    }
 
     @PostMapping
+    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
     public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDTO saved = productServiceImpl.addProduct(productDTO);
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('OWNER', 'ADMIN','STAFF')")
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return ResponseEntity.ok(productServiceImpl.getAllProducts());
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable String id, @RequestBody ProductDTO productDTO){
         return ResponseEntity.ok(productServiceImpl.updateProduct(id, productDTO));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
     public void deleteProduct(@PathVariable String id) {
         productServiceImpl.deleteProduct(id);
     }
 
     @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('OWNER', 'ADMIN','STAFF')")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable String id){
         return ResponseEntity.ok(productServiceImpl.getProductById(id));
     }

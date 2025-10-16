@@ -1,12 +1,15 @@
 package com.firstproject.smartinventory.service;
 
 import com.firstproject.smartinventory.dto.SaleItemsRequestDTO;
-import com.firstproject.smartinventory.dto.SaleItemsResponseDTO;
 import com.firstproject.smartinventory.dto.SaleRequestDTO;
 import com.firstproject.smartinventory.dto.SaleResponseDTO;
 import com.firstproject.smartinventory.entity.Product;
 import com.firstproject.smartinventory.entity.Sale;
 import com.firstproject.smartinventory.entity.Store;
+import com.firstproject.smartinventory.exception.badRequest.InsufficientStockException;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.ProductNotFoundException;
+import com.firstproject.smartinventory.exception.notFound.SaleNotFoundException;
 import com.firstproject.smartinventory.repository.ProductRepository;
 import com.firstproject.smartinventory.repository.SaleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +84,7 @@ SaleServiceImplTest {
     void testCreateSale_Success(){
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore("PRO20250908",store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId("PRO20250908",store.getStoreId())).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(saleRepository.save(any(Sale.class))).thenAnswer(invocation -> {
             Sale sale1 = invocation.getArgument(0);
@@ -95,7 +98,7 @@ SaleServiceImplTest {
         assertEquals("Test_Name",saleResponseDTO.getCustomerName());
         assertEquals("SALE20250908",saleResponseDTO.getSaleId());
         assertEquals(saleRequestDTO.getItems().getFirst().getQuantity(),saleResponseDTO.getItems().getFirst().getQuantity());
-        Optional<Product> product1 = productRepository.findByIdAndStore(saleRequestDTO.getItems().getFirst().getProductId(),store);
+        Optional<Product> product1 = productRepository.findByIdAndStore_StoreId(saleRequestDTO.getItems().getFirst().getProductId(),store.getStoreId());
 
         product1.ifPresent(value -> assertEquals(value.getPrice() * saleRequestDTO.getItems().getFirst().getQuantity(), saleResponseDTO.getTotalAmount()));
 
@@ -109,7 +112,7 @@ SaleServiceImplTest {
     @Test
     void testCreateSaleReduceQuantity(){
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore("PRO20250908",store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId("PRO20250908",store.getStoreId())).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(saleRepository.save(any(Sale.class))).thenAnswer(invocation -> {
             Sale sale1 = invocation.getArgument(0);
@@ -134,7 +137,7 @@ SaleServiceImplTest {
         SaleItemsRequestDTO saleItemsRequestDTO1 = new SaleItemsRequestDTO(id,5);
         SaleRequestDTO saleRequestDTO = new SaleRequestDTO("nani",List.of(saleItemsRequestDTO1));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class, () ->
                 saleServiceImpl.createSale(saleRequestDTO));
 
         assertEquals("Product not found with ID invalid", exception.getMessage());
@@ -149,11 +152,11 @@ SaleServiceImplTest {
         SaleRequestDTO saleRequestDTO = new SaleRequestDTO("nani", List.of(saleItemsRequestDTO));
 
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore("PRO20250908",store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId("PRO20250908",store.getStoreId())).thenReturn(Optional.of(product));
 
 
-        Optional<Product> product1 = productRepository.findByIdAndStore("PRO20250908",store);
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        Optional<Product> product1 = productRepository.findByIdAndStore_StoreId("PRO20250908",store.getStoreId());
+        InsufficientStockException exception = assertThrows(InsufficientStockException.class, () ->
                 saleServiceImpl.createSale(saleRequestDTO));
 
         product1.ifPresent(value -> assertEquals("Not Enough stock for product "+value.getName(), exception.getMessage()));
@@ -165,7 +168,7 @@ SaleServiceImplTest {
     @Test
     void testCreateSale_ShouldCalculateCorrectly(){
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        when(productRepository.findByIdAndStore("PRO20250908",store)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdAndStore_StoreId("PRO20250908",store.getStoreId())).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(saleRepository.save(any(Sale.class))).thenAnswer(invocation -> {
             Sale sale1 = invocation.getArgument(0);
@@ -230,7 +233,7 @@ SaleServiceImplTest {
     @Test
     void getSaleBySaleId_NullId(){
         when(storeContextService.getCurrentStore()).thenReturn(store);
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, ()->
+        InvalidInputException exception = assertThrows(InvalidInputException.class, ()->
             saleServiceImpl.getSaleById(null));
 
         assertEquals("Entered SaleId is not Valid",exception.getMessage());
@@ -243,7 +246,7 @@ SaleServiceImplTest {
         when(storeContextService.getCurrentStore()).thenReturn(store);
         when(saleRepository.getSalesBySaleIdAndStore(id,store)).thenReturn(null);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        SaleNotFoundException exception = assertThrows(SaleNotFoundException.class,
                 () -> saleServiceImpl.getSaleById(id));
 
         assertEquals("Sale not found with ID "+id, exception.getMessage());

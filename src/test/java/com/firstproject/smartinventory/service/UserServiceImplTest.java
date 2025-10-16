@@ -4,6 +4,9 @@ import com.firstproject.smartinventory.dto.UserRequestDTO;
 import com.firstproject.smartinventory.dto.UserResponseDTO;
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.exception.badRequest.DuplicateEntryException;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.UserNotFoundException;
 import com.firstproject.smartinventory.mapper.UserMapper;
 import com.firstproject.smartinventory.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +95,7 @@ public class UserServiceImplTest {
         when(userRepository.existsByUserNameIgnoreCaseAndStore(user.getUserName(),store)).
                 thenReturn(true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        DuplicateEntryException exception = assertThrows(DuplicateEntryException.class,
                 ()-> userServiceImpl.createUser(userRequestDTO));
 
         assertEquals("User name is already exist.", exception.getMessage());
@@ -105,7 +108,7 @@ public class UserServiceImplTest {
         when(storeContextService.getCurrentStore()).thenReturn(store);
         when(userRepository.existsByEmailAndStore(userRequestDTO.getEmail(), store)).thenReturn(true);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        DuplicateEntryException exception = assertThrows(DuplicateEntryException.class,
                 () -> userServiceImpl.createUser(userRequestDTO));
 
         assertEquals("Email already exists in database.", exception.getMessage());
@@ -160,7 +163,7 @@ public class UserServiceImplTest {
         when(userRepository.findByIdAndStore(id, store)).thenReturn(Optional.empty());
 
 //        System.out.println("Test-ID: "+id);
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 ()-> userServiceImpl.getUserById(id));
 
         assertEquals("User not found with ID "+id, exception.getMessage());
@@ -173,7 +176,7 @@ public class UserServiceImplTest {
     @Test
     void  getUserById_shouldThrowException_IdIsNull(){
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        InvalidInputException exception = assertThrows(InvalidInputException.class,
                 () -> userServiceImpl.getUserById(null));
 
         assertEquals("Entered ID is not valid.",exception.getMessage());
@@ -236,7 +239,7 @@ public class UserServiceImplTest {
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
         when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 ()-> userServiceImpl.updateUser(id,requestDTO));
 
         assertEquals("User is not found "+id, exception.getMessage());
@@ -283,7 +286,7 @@ public class UserServiceImplTest {
         doNothing().when(storeAuthorizationService).verifyUserAccess(store);
         when(userRepository.findByIdAndStore(id,store)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> userServiceImpl.deleteUser(id));
 
         verify(storeAuthorizationService).verifyUserAccess(store);

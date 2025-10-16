@@ -3,6 +3,8 @@ package com.firstproject.smartinventory.service;
 import com.firstproject.smartinventory.dto.CategoriesDTO;
 import com.firstproject.smartinventory.entity.Categories;
 import com.firstproject.smartinventory.entity.Store;
+import com.firstproject.smartinventory.exception.badRequest.InvalidInputException;
+import com.firstproject.smartinventory.exception.notFound.CategoriesNotFoundException;
 import com.firstproject.smartinventory.mapper.CategoriesMapper;
 import com.firstproject.smartinventory.repository.CategoriesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +27,16 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     public List<CategoriesDTO> getAllCategories() {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
-        return categoriesRepository.findByStore(store).stream().map(CategoriesMapper::toDTO).toList();
+        return categoriesRepository.findByStore_StoreId(store.getStoreId()).stream().map(CategoriesMapper::toDTO).toList();
     }
 
     public CategoriesDTO saveCategories(CategoriesDTO categoriesDTO) {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
         Categories categories = CategoriesMapper.toEntity(categoriesDTO);
         categories.setStore(store);
@@ -41,9 +47,11 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public CategoriesDTO updateCategory(String id, CategoriesDTO categoriesDTO) {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
-        Categories category = categoriesRepository.findByIdAndStore(id, store)
-                .orElseThrow(() -> new RuntimeException("Category is not available with id " + id));
+        Categories category = categoriesRepository.findByIdAndStore_StoreId(id, store.getStoreId())
+                .orElseThrow(() -> new CategoriesNotFoundException("Category is not available with id " + id));
 
         if (categoriesDTO.getName() != null)
             category.setName(categoriesDTO.getName());
@@ -55,9 +63,11 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public void deleteCategory(String id) {
         Store store = storeContextService.getCurrentStore();
+        if(store == null)
+            throw new InvalidInputException("Store Can't be null");
         storeAuthorizationService.verifyUserAccess(store);
-        Categories category = categoriesRepository.findByIdAndStore(id, store)
-                .orElseThrow(() -> new RuntimeException("No category is available with this id " + id));
+        Categories category = categoriesRepository.findByIdAndStore_StoreId(id, store.getStoreId())
+                .orElseThrow(() -> new CategoriesNotFoundException("No category is available with this id " + id));
 
         categoriesRepository.delete(category);
     }

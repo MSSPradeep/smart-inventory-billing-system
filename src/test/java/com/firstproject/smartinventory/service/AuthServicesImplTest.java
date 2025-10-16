@@ -5,6 +5,8 @@ import com.firstproject.smartinventory.dto.LoginRequestDTO;
 import com.firstproject.smartinventory.dto.RegisterRequestDTO;
 import com.firstproject.smartinventory.entity.Role;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.exception.badRequest.DuplicateEntryException;
+import com.firstproject.smartinventory.exception.notFound.UserNotFoundException;
 import com.firstproject.smartinventory.repository.UserRepository;
 import com.firstproject.smartinventory.security.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +85,8 @@ public class AuthServicesImplTest {
     void login_failed_wrongCredentials(){
         when(userRepository.findByEmail(loginRequestDTO.getEmail())).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+
                 () -> authServiceImpl.login(loginRequestDTO));
 
         assertEquals("No account found on this Email.", exception.getMessage());
@@ -119,7 +122,7 @@ public class AuthServicesImplTest {
     void register_throwException_mailIdAlreadyExists(){
         when(userRepository.existsByEmail(registerRequestDTO.getEmail())).thenReturn(true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        DuplicateEntryException exception = assertThrows(DuplicateEntryException.class,
                 () -> authServiceImpl.register(registerRequestDTO));
 
         assertEquals(registerRequestDTO.getEmail()+" is already exist, Please signIn.",exception.getMessage());
@@ -129,7 +132,7 @@ public class AuthServicesImplTest {
     void register_throwsException_userNameIsAlreadyExist(){
         when(userRepository.existsByUserNameIgnoreCase(registerRequestDTO.getUsername())).thenReturn(true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        DuplicateEntryException exception = assertThrows(DuplicateEntryException.class,
                 () -> authServiceImpl.register(registerRequestDTO));
 
         assertEquals( registerRequestDTO.getUsername()+" is already exist in database.", exception.getMessage());

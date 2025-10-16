@@ -5,10 +5,13 @@ import com.firstproject.smartinventory.dto.LoginRequestDTO;
 import com.firstproject.smartinventory.dto.RegisterRequestDTO;
 import com.firstproject.smartinventory.entity.Store;
 import com.firstproject.smartinventory.entity.User;
+import com.firstproject.smartinventory.exception.badRequest.DuplicateEntryException;
+import com.firstproject.smartinventory.exception.notFound.UserNotFoundException;
 import com.firstproject.smartinventory.others.IDGenerator;
 import com.firstproject.smartinventory.repository.UserRepository;
 import com.firstproject.smartinventory.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +41,7 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public AuthResponseDTO login(LoginRequestDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail()).orElseThrow(
-                () -> new RuntimeException("No account found on this Email."));
+                () -> new UserNotFoundException("No account found on this Email."));
         passwordEncoder.matches(dto.getPassword(), user.getPassword());
         String token =  jwtUtil.generateToken(appUserDetailsService.loadUserByUsername(user.getUserName()));
         return new AuthResponseDTO(token);
@@ -47,10 +50,10 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public AuthResponseDTO register(RegisterRequestDTO dto) {
         if (userRepository.existsByUserNameIgnoreCase(dto.getUsername())){
-            throw new RuntimeException(dto.getUsername()+" is already exist in database.");
+            throw new DuplicateEntryException(dto.getUsername()+" is already exist in database.");
         }
         if( userRepository.existsByEmail(dto.getEmail())){
-            throw new RuntimeException(dto.getEmail()+ " is already exist, Please signIn.");
+            throw new DuplicateEntryException(dto.getEmail()+ " is already exist, Please signIn.");
         }
 
         User user = new User();
