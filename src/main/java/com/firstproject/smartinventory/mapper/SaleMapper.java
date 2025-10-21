@@ -44,6 +44,7 @@ public class SaleMapper {
 
         SaleItemsResponseDTO dto = new SaleItemsResponseDTO();
         dto.setProductId(saleItems.getProduct().getId());
+        dto.setId(saleItems.getId());
         dto.setProductName(saleItems.getProduct().getName());
         dto.setQuantity(saleItems.getQuantity());
         dto.setPrice(saleItems.getPrice());

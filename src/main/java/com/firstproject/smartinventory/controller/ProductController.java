@@ -32,32 +32,32 @@ public class ProductController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO) {
         ProductDTO saved = productServiceImpl.addProduct(productDTO);
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('OWNER', 'ADMIN','STAFF')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN','STAFF')")
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return ResponseEntity.ok(productServiceImpl.getAllProducts());
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable String id, @RequestBody ProductDTO productDTO){
         return ResponseEntity.ok(productServiceImpl.updateProduct(id, productDTO));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public void deleteProduct(@PathVariable String id) {
         productServiceImpl.deleteProduct(id);
     }
 
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN','STAFF')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN','STAFF')")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable String id){
         return ResponseEntity.ok(productServiceImpl.getProductById(id));
     }

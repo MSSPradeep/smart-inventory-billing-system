@@ -7,6 +7,7 @@ import com.firstproject.smartinventory.entity.User;
 import com.firstproject.smartinventory.security.CustomeUserDetails;
 import com.firstproject.smartinventory.service.AppUserDetailsService;
 import com.firstproject.smartinventory.service.StoreServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +29,7 @@ public class StoreController {
 
     @PostMapping
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<StoreResponseDTO> createStore(@RequestBody StoreRequestDTO storeRequestDTO){
+    public ResponseEntity<StoreResponseDTO> createStore(@Valid @RequestBody StoreRequestDTO storeRequestDTO){
         StoreResponseDTO savedStore = storeServiceImpl.createStore(storeRequestDTO);
         return ResponseEntity.ok(savedStore);
     }
@@ -39,4 +40,5 @@ public class StoreController {
 
         return ResponseEntity.ok(storeServiceImpl.getStoresForUser());
     }
+
 }

@@ -4,6 +4,7 @@ import com.firstproject.smartinventory.dto.SaleItemsRequestDTO;
 import com.firstproject.smartinventory.dto.UserRequestDTO;
 import com.firstproject.smartinventory.dto.UserResponseDTO;
 import com.firstproject.smartinventory.service.UserServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
+
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -21,7 +24,7 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO){
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO){
         return ResponseEntity.ok(userServiceImpl.createUser(userRequestDTO));
     }
 
@@ -32,6 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String id){
         return ResponseEntity.ok(userServiceImpl.getUserById(id));
     }

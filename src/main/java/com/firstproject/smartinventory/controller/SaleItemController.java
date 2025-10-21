@@ -20,22 +20,22 @@ public class SaleItemController {
     private SaleItemsServiceImpl saleItemsServiceImpl;
 
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<SaleItemsResponseDTO> getSaleItemById(@PathVariable String id){
         return ResponseEntity.ok(saleItemsServiceImpl.getSaleItemById(id));
     }
     @GetMapping("/saleId/{SaleId}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<List<SaleItemsResponseDTO>> getSaleItemsBySaleId(@PathVariable String SaleId){
         return ResponseEntity.ok(saleItemsServiceImpl.getSaleItemsBySaleId(SaleId));
     }
     @GetMapping("/productId/{ProductId}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<List<SaleItemsResponseDTO>> getSaleItemsByProductId(@PathVariable String ProductId){
         return  ResponseEntity.ok(saleItemsServiceImpl.getSaleItemsByProductId(ProductId));
     }
     @GetMapping("/{ProductId}")
-    @PreAuthorize("hasRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ResponseEntity<Integer> getTotalQuantitySoldByProduct(@PathVariable String ProductId){
         return ResponseEntity.ok(saleItemsServiceImpl.getTotalQuantitySoldByProduct(ProductId));
     }

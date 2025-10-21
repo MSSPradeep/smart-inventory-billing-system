@@ -10,6 +10,7 @@ import com.firstproject.smartinventory.exception.badRequest.InvalidInputExceptio
 import com.firstproject.smartinventory.exception.notFound.ProductNotFoundException;
 import com.firstproject.smartinventory.exception.notFound.SaleNotFoundException;
 import com.firstproject.smartinventory.mapper.SaleMapper;
+import com.firstproject.smartinventory.others.IDGenerator;
 import com.firstproject.smartinventory.repository.ProductRepository;
 import com.firstproject.smartinventory.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,7 @@ SaleServiceImpl implements SaleService {
             SaleItems saleItem = SaleMapper.toEntity(itemsDTO, product);
             saleItem.setSale(sale);
             saleItem.setStore(store);
+            saleItem.setId(IDGenerator.idGenerator("SALEITEM"));
             saleItems.add(saleItem);
 
             totalAmount += saleItem.getSubTotal();

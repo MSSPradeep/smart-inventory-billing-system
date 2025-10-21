@@ -9,8 +9,12 @@ import com.firstproject.smartinventory.exception.badRequest.InvalidInputExceptio
 import com.firstproject.smartinventory.exception.notFound.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,6 +38,22 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<String> handleBadRequest(RuntimeException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        // Loop through all the field errors
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            String fieldName = error.getField(); // The name of the field that failed
+            String errorMessage = error.getDefaultMessage(); // The message from the annotation
+            errors.put(fieldName, errorMessage);
+        });
+
+        // Return the map of errors with a 400 status
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
 //  Handles the 403 FORBIDDEN Exception

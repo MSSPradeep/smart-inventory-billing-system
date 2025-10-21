@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,9 +21,11 @@ public class ProductDTO {
     private String id;
 
     @NotBlank(message = " name is required")
+    @Size(min = 3, message = "name must contains at least 3 characters.")
     private String name;
 
     @NotBlank(message = "brand is required")
+    @Size(min = 3, message = "brand must contains at least 3 characters.")
     private String brand;
 
     @DecimalMin(value = "0.1", message = "price is greater than 0 ")
